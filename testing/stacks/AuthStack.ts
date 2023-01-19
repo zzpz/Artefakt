@@ -4,6 +4,9 @@ import { ApiStack } from "./ApiStack";
 export function AuthStack({ stack }: StackContext) {
   const auth = new Cognito(stack, "Auth", {
     login: ["email"],
+    // triggers:{
+    //   postConfirmation:
+    // }
   });
 
   stack.addOutputs({

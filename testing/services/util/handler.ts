@@ -1,21 +1,22 @@
-export default function handler(lambda) {
+export default function handler(
+  lambda, //lambdaHandler
+) {
   return async function (event, context) {
     let body, statusCode;
 
     try {
       // Run the Lambda
       body = await lambda(event, context);
-      statusCode = 200;
-    } catch (e) {
+      statusCode = 202;
+    } catch (e: any) { //Error
       console.error(e);
       body = { error: e.message };
       statusCode = 500;
     }
 
     // Return HTTP response
-    return {
-      statusCode,
-      body: JSON.stringify(body),
-    };
+    const response = { statusCode, body: JSON.stringify(body) };
+
+    return response;
   };
 }

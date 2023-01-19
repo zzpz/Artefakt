@@ -39,8 +39,8 @@ export function WebStack({ stack }: StackContext) {
     cdk: {
       distribution: {
         defaultBehavior: {
-          viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
-          allowedMethods: AllowedMethods.ALLOW_ALL,
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
         },
         comment: "Distribution for my React website",
       },

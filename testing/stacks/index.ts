@@ -22,6 +22,9 @@ export default function main(app: App) {
   if (app.stage === "dev") {
     app.setDefaultRemovalPolicy(RemovalPolicy.DESTROY);
   }
+  if (app.stage === "prod") {
+    app.setDefaultRemovalPolicy(RemovalPolicy.DESTROY);
+  }
 
   app.stack(ConfigStack);
   app.stack(StorageStack);

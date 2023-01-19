@@ -48,6 +48,7 @@ export function ApiStack({ stack }: StackContext) {
       function: {
         //bind the resources to all functions
         bind: [table, bucket],
+        //TODO: we will want to bind the bucket for uploads specifically later
       },
     },
     routes: {
@@ -64,11 +65,16 @@ export function ApiStack({ stack }: StackContext) {
       },
       "GET /notes/{id}": "functions/get.main",
       "GET /notes": "functions/list.main",
+      "POST /upload": {
+        function: "functions/upload.main",
+        authorizer: "none", // TODO: authorizer for getting a signedurl
+      },
     },
   });
 
   stack.addOutputs({
     API: api.url,
+    domain: api.customDomainUrl || "err",
   });
 
   return { api };

@@ -2,12 +2,13 @@ import { Bucket, StackContext, Table } from "@serverless-stack/resources";
 
 export function StorageStack({ stack }: StackContext) {
   // Create the DynamoDB table
-  const table = new Table(stack, "Items", {
+  const dynamoName: string = "anynameatall"; //CloudFormation cannot update a stack when a custom-named resource requires replacing
+  const table = new Table(stack, dynamoName, {
     fields: {
-      userId: "string",
-      noteId: "string",
+      pk: "string",
+      sk: "string",
     },
-    primaryIndex: { partitionKey: "userId", sortKey: "noteId" },
+    primaryIndex: { partitionKey: "pk", sortKey: "sk" },
   });
 
   //create S3 storage
