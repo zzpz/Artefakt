@@ -1,6 +1,6 @@
 import { ChangeEventHandler, SyntheticEvent, useState } from "react";
 import { TextField } from "@mui/material";
-import { createAPIClientFromSession, createClientFromSession } from "../util/JWTClient"
+import { createAPIClientFromSession, createClientNoAuth } from "../util/JWTClient"
 import { useUserContext } from "../context/userContext";
 
 
@@ -22,7 +22,11 @@ export default function Test() {
     const getUserSession = user.getUserSession
     const dispatch = user.dispatch
 
-    const [formState, setFormState] = useState({})
+    const [formState, setFormState] = useState({ fields: {} })
+    const [uploaded, setUploaded] = useState(false);
+
+    let myFileList: FileList = [] //bad - fix
+    const [files, setFiles] = useState(myFileList);
 
     // request a url
 
@@ -33,12 +37,47 @@ export default function Test() {
 
     const _onSuccess = (data: any) => {
         setFormState(data);
-        console.log("formstate:", formState);
         try {
             upload_file(data.url)
         } catch (err) {
             console.error(err);
         }
+    }
+
+    const _onSuccessUpload = (data: any) => {
+        setUploaded(true)
+        console.log("uploadresponse: ", data)
+    }
+
+    const upload_file = async (url: string) => {
+        let formData = new FormData();
+
+        const file: File = files.item(0)! //bad but we are making it happy path atm
+
+        const f = { ...formState.fields }
+        console.log(f)
+
+        for (const [key, value] of Object.entries(f)) {
+            formData.append(key, value);
+        }
+
+        formData.append("file", file, file.name);
+
+        getUserSession(dispatch).then((data) => {
+            const axiosClient = createClientNoAuth(
+                data.session, url)
+
+            console.log("posting to:", url)
+            return axiosClient
+        }).then((axiosClient) => {
+            return (axiosClient.post(url, formData))
+        }).then((response) => {
+            _onSuccessUpload(response)
+        })
+            .catch(err => {
+                console.error("error in upload", err);
+                throw new Error("error");
+            })
     }
 
 
@@ -88,18 +127,7 @@ export default function Test() {
     //     }
     // }
 
-    const upload_file = async (url: string) => {
-        getUserSession(dispatch).then((data) => {
-            const axiosClient = createClientFromSession(
-                data.session, url)
-            axiosClient.post(url, formState)
-        }).then((response) => {
-            console.log(response)
-        }).catch(err => {
-            console.error("error in upload", err);
-            throw new Error("error");
-        })
-    }
+
 
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
         const { name, value } = e.target;
@@ -110,6 +138,7 @@ export default function Test() {
 
         if (name === "File" && e.target.files) {
             setfilepreviewSrc(URL.createObjectURL(e.target.files[0]))
+            setFiles(e.target.files)
         }
     };
 

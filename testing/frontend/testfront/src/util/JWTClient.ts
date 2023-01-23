@@ -1,14 +1,14 @@
 import { CognitoUserSession } from "amazon-cognito-identity-js";
 import axios, { AxiosInstance, CreateAxiosDefaults } from "axios";
 
-export const createClientFromSession = (
+export const createClientNoAuth = (
   session: CognitoUserSession,
   url: string,
 ) => {
   const bearer_token: string = session.getIdToken().getJwtToken();
   var bearer: string = `Bearer ${bearer_token}`;
   const config: CreateAxiosDefaults = {
-    headers: { Authorization: bearer },
+    headers: { "Content-Type": "multipart/form-data" },
   };
 
   const client: AxiosInstance = axios.create(
