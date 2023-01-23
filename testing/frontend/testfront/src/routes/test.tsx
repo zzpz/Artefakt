@@ -22,11 +22,10 @@ export default function Test() {
     const getUserSession = user.getUserSession
     const dispatch = user.dispatch
 
-    const [formState, setFormState] = useState({ fields: {} })
+    const [formState, setFormState] = useState<any>({ fields: {} })
     const [uploaded, setUploaded] = useState(false);
 
-    let myFileList: FileList = [] //bad - fix
-    const [files, setFiles] = useState(myFileList);
+    const [files, setFiles] = useState<FileList>();
 
     // request a url
 
@@ -52,13 +51,16 @@ export default function Test() {
     const upload_file = async (url: string) => {
         let formData = new FormData();
 
-        const file: File = files.item(0)! //bad but we are making it happy path atm
+        const file: File = files?.item(0)! //bad but we are making it happy path atm
+
+
 
         const f = { ...formState.fields }
         console.log(f)
 
         for (const [key, value] of Object.entries(f)) {
-            formData.append(key, value);
+            if (typeof value === "string")
+                formData.append(key, value);
         }
 
         formData.append("file", file, file.name);
