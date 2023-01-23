@@ -1,5 +1,5 @@
 export default function handler(
-  lambda, //lambdaHandler
+  lambda, //lambda
 ) {
   return async function (event, context) {
     let body, statusCode;

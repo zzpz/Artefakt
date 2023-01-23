@@ -1,6 +1,13 @@
 import { Link } from "react-router-dom";
+import IconButton from '@mui/material/IconButton';
+import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 
+import { useUserContext } from "../context/userContext";
+import { useEffect } from "react";
 export default function NavBar() {
+    let user = useUserContext().user
+
+
     return (
         <nav className="NavBar"
             style={{
@@ -8,11 +15,22 @@ export default function NavBar() {
         >
             <h1>Queensland University Regiment Association Inc</h1>
 
+
+            {/*TODO: <ProfileButton based on passing status in prop/> */}
+            {`user_status: ${user.state.status}`}
+            {user.state.status?.startsWith("finish") ?
+                <Link to="/test"><IconButton aria-label="profile"><AccountCircleRoundedIcon color="success" /></IconButton></Link> :
+                <Link to="/signin"><IconButton aria-label="profile"><AccountCircleRoundedIcon color="disabled" /></IconButton></Link>
+            }
+
             <ul>
+
                 <li><Link to="/">Home</Link></li>
                 <li><Link to="/signup">Sign Up</Link></li>
+                <li><Link to="/signin">Sign In</Link></li>
                 <hr></hr>
                 <li><Link to="/test">Testing</Link></li>
+                <li><Link to="/test2">User</Link></li>
                 <li><Link to="/roadmap">Roadmap</Link></li>
                 {/* <li><Link to="/item">Item</Link></li>
                 <li><Link to="/browse">Browse</Link></li>

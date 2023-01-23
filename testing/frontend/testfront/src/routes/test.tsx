@@ -1,8 +1,10 @@
 import { ChangeEventHandler, SyntheticEvent, useContext, useEffect, useState } from "react";
-import { AccountContext } from "../context/accountContext";
 import { PresignedPost } from "@aws-sdk/s3-presigned-post";
-import { FormControl, TextField } from "@mui/material";
-import { createClientFromSession } from "../util/JWTClient"
+import { TextField } from "@mui/material";
+import { createAPIClientFromSession, createClientFromSession } from "../util/JWTClient"
+import { useUserContext } from "../context/userContext";
+
+import axios, { AxiosInstance, CreateAxiosDefaults } from "axios";
 
 
 
@@ -19,9 +21,14 @@ interface PresignedPostRequestValues {
 
 export default function Test() {
 
-    // request a url
-    const { getUserSession, userpool } = useContext(AccountContext)
+    // get current user
+    const user = useUserContext().user
+    const getUserSession = user.getUserSession
+    const dispatch = user.dispatch
 
+    const [formState, setFormState] = useState({})
+
+    // request a url
 
 
     // const _onError = (error:Error) => {
@@ -29,8 +36,13 @@ export default function Test() {
     // }
 
     const _onSuccess = (data: any) => {
-        console.log(data)
-        alert("Success! You have received signed cookies.")
+        setFormState(data);
+        console.log("formstate:", formState);
+        try {
+            upload_file(data.url)
+        } catch (err) {
+            console.error(err);
+        }
     }
 
 
@@ -44,9 +56,10 @@ export default function Test() {
 
 
     const request_url = (formValues: PresignedPostRequestValues) => {
+        //gettingURL = true
         const url = "/upload"
-        getUserSession().then((data: any) => {
-            const axiosClient = createClientFromSession(
+        getUserSession(dispatch).then((data) => {
+            const axiosClient = createAPIClientFromSession(
                 data.session
             )
             axiosClient.post(url, {
@@ -59,13 +72,13 @@ export default function Test() {
                 console.error("axios client error", err);
             })
         }).catch(err => {
-            console.error("Cannot retrieve user session", err);
+            console.log(err)
         })
     }
 
 
 
-    // //better
+    // //better handle of inputchange for preview
     // const handleFileUpload: ChangeEventHandler<HTMLInputElement> = (e) => {
     //     const { name, value } = e.target;
     //     if (e.target.files) {
@@ -79,7 +92,18 @@ export default function Test() {
     //     }
     // }
 
-
+    const upload_file = async (url: string) => {
+        getUserSession(dispatch).then((data) => {
+            const axiosClient = createClientFromSession(
+                data.session, url)
+            axiosClient.post(url, formState)
+        }).then((response) => {
+            console.log(response)
+        }).catch(err => {
+            throw new Error("error");
+            console.error("error in upload", err);
+        })
+    }
 
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
         const { name, value } = e.target;
@@ -95,7 +119,6 @@ export default function Test() {
 
     const handleSubmit = (e: SyntheticEvent) => {
         e.preventDefault();
-        console.log(formValues);
         request_url(formValues);
     }
 

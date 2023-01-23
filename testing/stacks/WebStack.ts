@@ -17,14 +17,14 @@ export function WebStack({ stack }: StackContext) {
   const { api } = use(ApiStack); // Not sure why this destructuring like this is necessary vs {api}
 
   const site = new StaticSite(stack, "frontend", {
-    disablePlaceholder: true,
+    disablePlaceholder: false,
     path: "frontend/testfront",
     buildOutput: "build",
     buildCommand: "npm run build",
     environment: {
       REACT_APP_USER_POOL_ID: auth.userPoolId,
       REACT_APP_USER_POOL_CLIENT_ID: auth.userPoolClientId,
-      REACT_APP_TEST: "test_ENV",
+      REACT_APP_APP_STAGE: stack.stage,
       REACT_APP_DOMAIN: domain,
       REACT_APP_API_URL: api.url,
     },

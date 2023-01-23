@@ -1,9 +1,14 @@
 import { ChangeEventHandler, ReactEventHandler, useState } from "react"
 import { TextField } from "@mui/material"
-import { register } from "../context/accountContext"
+import { useUserContext } from "../../context/userContext"
 
 const SignupForm = () => {
+    const user = useUserContext().user
+    //import registerUser
+    const registerUser = user.registerUser
+    const dispatch = user.dispatch //from UserContext.Provider
 
+    const user_state = useUserContext().user.state;
 
     const initialVals = {
         given_name: "",
@@ -11,24 +16,25 @@ const SignupForm = () => {
         email: "",
         password: ""
     }
+
     const [formValues, setFormValues] = useState(initialVals)
-
-
 
 
 
     const onSubmit: ReactEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
         const attributes = undefined
-        register(formValues.email, formValues.password, attributes).then(
+
+        //try(register) catch()-> _onFailure(err) <---
+
+        registerUser(formValues, dispatch).then(
             (result) => {
                 console.log(result);
             }
-        ).catch((err) => { console.log(`error: ${err}`) }
+        ).catch((err) => { console.error(`error: ${err}`) }
         ).finally(
             () => {
                 console.log(formValues);
-                console.log(`password: ${formValues.password}`)
             }
         );
 

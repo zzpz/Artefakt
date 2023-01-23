@@ -14,13 +14,14 @@ export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
   const config = use(ConfigStack);
 
-  // const certArn: string =
-  //   "arn:aws:acm:ap-southeast-2:759044112081:certificate/d873ad90-2f5f-49ad-a1ef-de4b61cbfe25";
+  const apiDomain = stack.stage === "dev"
+    ? "dev.api.qura.website"
+    : "api." + config.DOMAIN.value;
 
   const api = new ApiGateway(stack, "api", {
     customDomain: {
       isExternalDomain: true,
-      domainName: "api." + config.DOMAIN.value,
+      domainName: apiDomain,
       cdk: {
         certificate: Certificate.fromCertificateArn(
           stack,
@@ -34,7 +35,7 @@ export function ApiStack({ stack }: StackContext) {
       allowMethods: ["GET", "POST"],
     },
     authorizers: {
-      cognitoJWT: {
+      jwt: {
         type: "user_pool",
         userPool: {
           id: auth.userPoolId,
@@ -43,8 +44,9 @@ export function ApiStack({ stack }: StackContext) {
       },
     },
     defaults: {
-      authorizer: "cognitoJWT",
-      authorizationScopes: ["user.id", "user.email"],
+      authorizer: "jwt",
+      // 403 - Forbidden - When the JWT validation is successful but the required scopes are not met
+      // authorizationScopes: ["user.id", "user.email"],
       function: {
         //bind the resources to all functions
         bind: [table, bucket],
@@ -56,7 +58,6 @@ export function ApiStack({ stack }: StackContext) {
         type: "function",
         function: {
           handler: "functions/lambda.main",
-          functionName: "my_post_db_function",
         },
       },
       "POST /up": {
@@ -67,10 +68,13 @@ export function ApiStack({ stack }: StackContext) {
       "GET /notes": "functions/list.main",
       "POST /upload": {
         function: "functions/upload.main",
-        authorizer: "none", // TODO: authorizer for getting a signedurl
+        authorizer: "jwt", // TODO: authorizer for getting a signedurl
       },
     },
   });
+
+  //add auth permissions for users here?
+  auth.attachPermissionsForAuthUsers(stack, [api]);
 
   stack.addOutputs({
     API: api.url,

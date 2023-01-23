@@ -21,9 +21,10 @@ import Test from './routes/test';
 // import Item from './routes/ItemRoute'; //a sub path of browse
 // import Browse from './routes/browse';
 // import Upload from './routes/upload';
-import Signup from './routes/SignupRoute';
-import RoadMap from "./routes/RoadMapRoute";
-// import Signin from './routes/SigninRoute';
+import SignUp from './routes/SignupRoute';
+import Roadmap from "./routes/RoadMapRoute";
+import SignIn from './routes/SigninRoute';
+import User from './routes/test2';
 // import Settings from './routes/SettingsRoute';
 // import JWTRoute from './routes/JWTRoute';
 // import Image from './routes/ProtectBrowse';
@@ -35,15 +36,16 @@ const router = createBrowserRouter(
       element={<Root></Root>}
       errorElement={<ErrorPage />}
     >
-      <Route path="signup" element={<Signup />} />
+      <Route path="test2" element={<User />} />
+      <Route path="signin" element={<SignIn />} />
+      <Route path="signup" element={<SignUp />} />
       <Route path="test" element={<Test />} />
-      <Route path="roadmap" element={<RoadMap />} />
+      <Route path="roadmap" element={<Roadmap />} />
+
       {/* 
       <Route path="Item" element={<Item />} />
       <Route path="browse" element={<Browse />} />
       <Route path="upload" element={<Upload />} />
-      <Route path="signup" element={<Signup />} />
-      <Route path="signin" element={<Signin />} />
       <Route path="settings" element={<Settings />} />
       <Route path="jwt" element={<JWTRoute />} />
       <Route path="protected" element={<Image />} />

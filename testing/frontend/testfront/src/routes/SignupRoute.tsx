@@ -1,4 +1,4 @@
-import SignupForm from "../components/SignUpForm";
+import SignupForm from "../components/Forms/SignUpForm";
 import { useEffect } from "react";
 
 // export default function Signup() {

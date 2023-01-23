@@ -6,8 +6,10 @@ import {
     CognitoUserAttribute,
     CognitoUserPool,
     CognitoUserSession,
-    ICognitoUserPoolData,
     ICognitoUserAttributeData,
+    IAuthenticationDetailsData,
+    IAuthenticationCallback,
+    ICognitoUserData,
     ISignUpResult,
     NodeCallback
 } from "amazon-cognito-identity-js";
@@ -18,19 +20,57 @@ const userpool = UserPool;
 
 
 interface IRegisterFunction {
-    (email: string, password: string, attributes?: { [key: string]: string }): Promise<ISignUpResult>
+    (email: string, password: string, attributes?: ICognitoUserAttributeData[]): Promise<ISignUpResult>
 }
 
-interface IRegisterData {
+interface IAuthenticateFunction<T> {
+    (email: string, password: string): Promise<T>
+}
+
+interface IUserSessionFunction<T> {
+    (): Promise<T>
+}
+
+interface IUserSessionData {
+    user: CognitoUser,
+    session: CognitoUserSession,
+    userAttributes: ICognitoUserAttributeData[]
+}
+
+export interface IUserProfileData {
+    name?: string
+    email?: string
+    userpool?: typeof UserPool
+}
+
+interface IRegisterData { //Todo: use as input params for RegisterFunction?
     email: string,
-    password: string
+    password: string,
+    attributes?: { [key: string]: string }
 }
 
+export interface ISignInResult {
+    session: CognitoUserSession,
+    userConfirmationNecessary?: boolean
+    userAttributes?: undefined,
+    requiredAttributes?: undefined
 
+}
 
-// signup
+interface IPassResetResult {
+    session?: undefined, //that's a bit bad...
+    userConfirmationNecessary?: undefined
+    userAttributes: any,
+    requiredAttributes: any
+}
+
+export type SignInResult = ISignInResult | IPassResetResult
+
+// signup 
 const register: IRegisterFunction = async (email, password, attributes) => {
     let userAttributes: CognitoUserAttribute[] = []
+
+    //foreach attr in attrs: new CUA()
 
     const emailAttribute: CognitoUserAttribute = new CognitoUserAttribute({
         Name: 'email',
@@ -55,37 +95,90 @@ const register: IRegisterFunction = async (email, password, attributes) => {
     })
 }
 
+const authenticate: IAuthenticateFunction<SignInResult> = async (email: string, password: string) => {
+
+    //wrap the authenticate user async call in a promise we will return exposing results for callbacks
+    return await new Promise((resolve, reject) => {
 
 
+        const callbacks: IAuthenticationCallback = {
+            onSuccess: (session, userConfirmationNecessary) => {
+                const data: ISignInResult = { session, userConfirmationNecessary };
+                resolve(data)
+            },
+            onFailure: (err: any) => {
+                console.log(err.message) //log failures?
+                reject(err)
+            },
+            newPasswordRequired: (userAttributes, requiredAttributes) => {
+                const data: IPassResetResult = { userAttributes, requiredAttributes };
+                resolve(data)
+            },
+        }
 
-//current user as context? no
+        let cognitoUserData: ICognitoUserData = {
+            Username: email,
+            Pool: userpool
+        }
+
+        let authDetailsData: IAuthenticationDetailsData = {
+            Username: email,
+            Password: password,
+        }
+
+        //get user + auth
+        const user = new CognitoUser(cognitoUserData);
+        const authDetails = new AuthenticationDetails(authDetailsData);
+
+        user.authenticateUser(authDetails,
+            callbacks)
+    })
+}
 
 
-//getSession takes a callback
-const getUserSession = async () => {
-    const user: CognitoUser | null = userpool.getCurrentUser();
+//TODO: return a value for signOut();
+const logout: VoidFunction = () => {
+    const user = userpool.getCurrentUser();
+    if (user) {
+        user.signOut();
+    }
+    return
+}
+
+const getUserSession: IUserSessionFunction<IUserSessionData> = async () => {
+    const user: CognitoUser | null = userpool.getCurrentUser();//from local if there
+
+    //wrap async getSession + callback in a promise
     return await new Promise((resolve, reject) => {
         if (user) {
             user.getSession(async (error: Error, session: CognitoUserSession | null) => {
                 if (error) { //reject - no session
                     reject(error)
-                } else {//no error means we have a session 
-                    //grab their attributes
-                    const userAttributes = await new Promise((resolve, reject) => {
-                        user.getUserAttributes((error, attributes) => {
-                            if (error) {
-                                reject(error);
-                            } else {
-                                const attrs: { [index: string]: string } = {};
-                                attributes?.forEach((coguserattr: CognitoUserAttribute) => {
-                                    const { Name, Value } = coguserattr;
-                                    attrs[Name] = Value;
-                                });
-                                resolve(attrs);
-                            }
+                } else {//no error means we have a session
+                    //narrow to CognitoUserSession
+                    if (session instanceof CognitoUserSession) {
+                        //grab their attributes as well
+                        const userAttributes = await new Promise<CognitoUserAttribute[]>((resolve, reject) => {
+                            user.getUserAttributes((error, attributes) => {
+                                if (error) {
+                                    reject(error);
+                                } else {
+                                    //let's narrow attributes further
+                                    if (Array.isArray(attributes)) {
+                                        attributes.map<ICognitoUserAttributeData>((cua) => {
+                                            return ({
+                                                Name: cua.Name,
+                                                Value: cua.Value
+                                            })
+                                        })
+                                        resolve(attributes)
+                                    }
+                                }
+                            });
                         });
-                    });
-                    resolve({ user, session, userAttributes }) //bundles them
+                        resolve({ user, session, userAttributes }) //bundles them into a single obj
+                    }
+                    reject(new Error("This should be unreachable"))
                 }
             })
         } else {
@@ -95,17 +188,19 @@ const getUserSession = async () => {
 }
 
 //context
-
-interface IAccountContextType {
-    userpool: CognitoUserPool; // there will always be a pool
-    // auth:string|((u:string,p:string)=>Promise<unknown>); 
-    // getSession:string|(()=>Promise<unknown>);
-    getUserSession: (() => Promise<unknown>);
-    // logout:string|(()=>void);
+interface IAccountContextData {
+    user?: IUserProfileData; // there may be a user with attributes here
+    setUser?: (userProfile: IUserProfileData) => IUserProfileData;
+    register: IRegisterFunction; //there will always be a register function
+    authenticate: IAuthenticateFunction<SignInResult>; // there will always be an auth function
+    getUserSession: IUserSessionFunction<IUserSessionData>; //there will always be a get session function
+    logout: (() => void);
 }
-const defaultValue: IAccountContextType = { userpool, getUserSession };
-const AccountContext = createContext<IAccountContextType>(
+
+
+const defaultValue: IAccountContextData = { register, getUserSession, authenticate, logout };
+const AccountContext = createContext<IAccountContextData>(
     defaultValue
 )
 
-export { AccountContext, defaultValue, register }
+export { AccountContext, defaultValue, register, authenticate, logout }

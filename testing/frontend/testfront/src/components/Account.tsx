@@ -1,14 +1,16 @@
-import { AccountContext, defaultValue } from "../context/accountContext";
+import { useState } from "react";
+import { UserProvider } from "../context/userContext"
 
 interface AccountProps {
   children?: React.ReactNode; // best, accepts everything React can render
 }
 
 const Account = (props: AccountProps) => {
+
   return (
-    <AccountContext.Provider value={defaultValue}>
+    <UserProvider>
       {props.children}
-    </AccountContext.Provider>
+    </UserProvider>
   )
 }
 

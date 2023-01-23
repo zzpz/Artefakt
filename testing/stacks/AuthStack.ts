@@ -9,6 +9,8 @@ export function AuthStack({ stack }: StackContext) {
     // }
   });
 
+  // need to use the CDK to add identity_pool.group to SST
+
   stack.addOutputs({
     UserPoolId: auth.userPoolId,
     IdentityPoolId: auth.cognitoIdentityPoolId,

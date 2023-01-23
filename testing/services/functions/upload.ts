@@ -1,20 +1,38 @@
-import handler from "../util/handler";
-import uploads from "../util/uploads";
 import { PresignedPostOptions } from "@aws-sdk/s3-presigned-post";
+import { APIGatewayProxyHandlerV2WithJWTAuthorizer } from "aws-lambda";
 import { Bucket } from "@serverless-stack/node/bucket";
-import { APIGatewayProxyEventV2 } from "aws-lambda";
+import uploads from "util/uploads"; //presignedpost
 
-//** todo: review this with V2 to use APIHandler() */
-export const main = handler(
-  async (event: APIGatewayProxyEventV2) => {
-    // we receive JSON
-    // TODO: validate inputs --> zod? trpc?
+import handler from "util/handler";
 
-    const validatedInput = JSON.parse(event.body!);
+export const main = handler(async (
+  event,
+) => {
+  //validate input
+  const input = event.body ?? JSON.stringify({ fail: "fail" });
+  const validatedInput = JSON.parse(input);
+  let authorised = false;
+  var groups: string =
+    event.requestContext?.authorizer?.jwt.claims["cognito:groups"] ?? " error ";
 
+  //validate authorised group
+  groups = groups.substring(1, groups.length - 1);
+
+  if (groups === "error") {
+    throw new Error("not authorised");
+  } else {
+    groups = groups.split(",");
+  }
+
+  //narrow
+  if (Array.isArray(groups)) {
+    authorised = groups.includes("historian");
+  }
+
+  if (authorised) {
     const options: PresignedPostOptions = {
       Bucket: Bucket.Uploads.bucketName,
-      Key: validatedInput.Key ? validatedInput.Key : "error", //this is an error
+      Key: validatedInput.Key ? validatedInput.Key : "error", //this is not good validating
       Fields: validatedInput.Fields
         ? validatedInput.Fields
         : { "acl": "private" },
@@ -28,5 +46,5 @@ export const main = handler(
     return (
       { url: url, fields: fields }
     );
-  },
-);
+  }
+});
