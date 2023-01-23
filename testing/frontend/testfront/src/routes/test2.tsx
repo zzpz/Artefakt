@@ -5,15 +5,15 @@ import { useUserContext } from "../context/userContext";
 const User = () => {
 
     //move out to tests
-    const testVerifiedUser = {
-        email: "a@example.com",
-        password: "Password1!",
-    }
+    // const testVerifiedUser = {
+    //     email: "a@example.com",
+    //     password: "Password1!",
+    // }
 
-    const testUnconfirmedUser = {
-        email: "email@test.com",
-        password: "Password1!",
-    }
+    // const testUnconfirmedUser = {
+    //     email: "email@test.com",
+    //     password: "Password1!",
+    // }
 
     const testPassChangeUser = {
         email: "b@test.com",

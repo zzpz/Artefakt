@@ -32,7 +32,7 @@ const SignInForm = () => {
 
     const onSubmit: ReactEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
-        user.authenticateUser(formValues, user.dispatch)
+        authenticateUser(formValues, user.dispatch)
             .then(data => {
                 console.log("SignIn Response received")
             }

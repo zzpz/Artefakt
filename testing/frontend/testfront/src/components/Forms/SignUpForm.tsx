@@ -4,11 +4,9 @@ import { useUserContext } from "../../context/userContext"
 
 const SignupForm = () => {
     const user = useUserContext().user
-    //import registerUser
+    //import {registerUser}
     const registerUser = user.registerUser
     const dispatch = user.dispatch //from UserContext.Provider
-
-    const user_state = useUserContext().user.state;
 
     const initialVals = {
         given_name: "",
@@ -23,7 +21,6 @@ const SignupForm = () => {
 
     const onSubmit: ReactEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
-        const attributes = undefined
 
         //try(register) catch()-> _onFailure(err) <---
 
@@ -49,9 +46,9 @@ const SignupForm = () => {
     }
 
     // client side validation before submission
-    const validateFormInputs = () => {
+    // const validateFormInputs = () => {
 
-    }
+    // }
 
 
     return (

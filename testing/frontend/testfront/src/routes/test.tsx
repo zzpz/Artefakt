@@ -1,11 +1,7 @@
-import { ChangeEventHandler, SyntheticEvent, useContext, useEffect, useState } from "react";
-import { PresignedPost } from "@aws-sdk/s3-presigned-post";
+import { ChangeEventHandler, SyntheticEvent, useState } from "react";
 import { TextField } from "@mui/material";
 import { createAPIClientFromSession, createClientFromSession } from "../util/JWTClient"
 import { useUserContext } from "../context/userContext";
-
-import axios, { AxiosInstance, CreateAxiosDefaults } from "axios";
-
 
 
 interface PresignedPostRequestValues {
@@ -100,8 +96,8 @@ export default function Test() {
         }).then((response) => {
             console.log(response)
         }).catch(err => {
-            throw new Error("error");
             console.error("error in upload", err);
+            throw new Error("error");
         })
     }
 

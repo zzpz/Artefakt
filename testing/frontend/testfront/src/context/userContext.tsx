@@ -1,10 +1,9 @@
-import { Context, createContext, useContext, useEffect, useReducer } from "react";
+import { createContext, useContext, useEffect, useReducer } from "react";
 
 import {
     AuthenticationDetails,
     CognitoUser,
     CognitoUserAttribute,
-    CognitoUserPool,
     CognitoUserSession,
     ICognitoUserAttributeData,
     IAuthenticationDetailsData,
@@ -245,7 +244,6 @@ const useUserContext = (): { user: IUserContextData } => {
     if (!userContext) {
         throw new Error("useUserContext must be used within a UserContextProvider")
     }
-    const dispatch = userContext?.dispatch;
 
     //return the context object for use
     return { user: userContext }

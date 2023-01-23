@@ -3,7 +3,6 @@ import IconButton from '@mui/material/IconButton';
 import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 
 import { useUserContext } from "../context/userContext";
-import { useEffect } from "react";
 export default function NavBar() {
     let user = useUserContext().user
 

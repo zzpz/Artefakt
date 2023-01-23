@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { UserProvider } from "../context/userContext"
 
 interface AccountProps {

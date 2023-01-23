@@ -1,4 +1,4 @@
-import { CognitoIdToken, CognitoUserSession } from "amazon-cognito-identity-js";
+import { CognitoUserSession } from "amazon-cognito-identity-js";
 import axios, { AxiosInstance, CreateAxiosDefaults } from "axios";
 
 export const createClientFromSession = (
@@ -22,7 +22,8 @@ export const createClientFromSession = (
 };
 
 export const createAPIClientFromSession = (session: CognitoUserSession) => {
-  const baseURL: string = "https://api.qura.website";
+  const baseURL: string = process.env.REACT_APP_API_URL ??
+    "https://api.qura.website";
 
   const bearer_token: string = session.getIdToken().getJwtToken();
   var bearer: string = `Bearer ${bearer_token}`;
