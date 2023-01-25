@@ -16,7 +16,7 @@ import ErrorPage
   from './error-page';
 //routes
 import Root from "./routes/root";
-import Test from './routes/test';
+import Test from './routes/TestRoute';
 
 // import Item from './routes/ItemRoute'; //a sub path of browse
 // import Browse from './routes/browse';
@@ -25,6 +25,7 @@ import SignUp from './routes/SignupRoute';
 import Roadmap from "./routes/RoadMapRoute";
 import SignIn from './routes/SigninRoute';
 import User from './routes/test2';
+import Upload from "./routes/UploadRoute"
 // import Settings from './routes/SettingsRoute';
 // import JWTRoute from './routes/JWTRoute';
 // import Image from './routes/ProtectBrowse';
@@ -41,6 +42,7 @@ const router = createBrowserRouter(
       <Route path="signup" element={<SignUp />} />
       <Route path="test" element={<Test />} />
       <Route path="roadmap" element={<Roadmap />} />
+      <Route path="upload" element={<Upload />} />
 
       {/* 
       <Route path="Item" element={<Item />} />

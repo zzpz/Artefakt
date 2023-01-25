@@ -1,7 +1,7 @@
 import { ChangeEventHandler, SyntheticEvent, useState } from "react";
 import { TextField } from "@mui/material";
-import { createAPIClientFromSession, createClientNoAuth } from "../util/JWTClient"
-import { useUserContext } from "../context/userContext";
+import { createAPIClientFromSession, createClientNoAuth } from "../../util/JWTClient"
+import { useUserContext } from "../../context/userContext";
 
 
 interface PresignedPostRequestValues {
@@ -15,7 +15,7 @@ interface PresignedPostRequestValues {
 //https://github.com/johndatserakis/file-upload-with-preview/blob/develop/src/file-upload-with-preview.ts
 
 
-export default function Test() {
+export default function UploadForm() {
 
     // get current user
     const user = useUserContext().user

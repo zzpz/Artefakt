@@ -31,6 +31,7 @@ export default function NavBar() {
                 <li><Link to="/test">Testing</Link></li>
                 <li><Link to="/test2">User</Link></li>
                 <li><Link to="/roadmap">Roadmap</Link></li>
+                <li><Link to="/upload">Upload</Link></li>
                 {/* <li><Link to="/item">Item</Link></li>
                 <li><Link to="/browse">Browse</Link></li>
                 <li><Link to="/upload">Upload</Link></li>
