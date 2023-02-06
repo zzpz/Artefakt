@@ -2,6 +2,7 @@ import { PresignedPostOptions } from "@aws-sdk/s3-presigned-post";
 import { APIGatewayProxyHandlerV2WithJWTAuthorizer } from "aws-lambda";
 import { Bucket } from "@serverless-stack/node/bucket";
 import uploads from "util/uploads"; //presignedpost
+import { monotonicFactory } from "ulid";
 
 import handler from "util/handler";
 
@@ -9,11 +10,17 @@ export const main = handler(async (
   event,
 ) => {
   //validate input
+  // TODO: middy / trpc / zod
   const input = event.body ?? JSON.stringify({ fail: "fail" });
   const validatedInput = JSON.parse(input);
+
+  let valid = true;
   let authorised = false;
   var groups: string =
     event.requestContext?.authorizer?.jwt.claims["cognito:groups"] ?? " error ";
+
+  //generate the Key for insert
+  const ulid = monotonicFactory();
 
   //validate authorised group
   groups = groups.substring(1, groups.length - 1);
@@ -24,21 +31,23 @@ export const main = handler(async (
     groups = groups.split(",");
   }
 
-  //narrow
+  //narrow to array
   if (Array.isArray(groups)) {
     authorised = groups.includes("historian");
   }
 
-  if (authorised) {
+  if (authorised && valid) { //and valid (we shouldn't be doing this here)
+    //renaming fields to be x-amz-meta-field
+
+    renameKeys(validatedInput.fields);
+
     const options: PresignedPostOptions = {
       Bucket: Bucket.Uploads.bucketName,
-      Key: validatedInput.Key ? validatedInput.Key : "error", //this is not good validating
-      Fields: validatedInput.Fields
-        ? validatedInput.Fields
+      Key: ulid(),
+      Fields: validatedInput.fields
+        ? renameKeys(validatedInput.fields)
         : { "acl": "private" },
-      Conditions: validatedInput.Conditions
-        ? validatedInput.Conditions
-        : undefined,
+      Conditions: undefined, // required if we send auth headers to s3 post url
       Expires: 600,
     };
 
@@ -46,5 +55,15 @@ export const main = handler(async (
     return (
       { url: url, fields: fields }
     );
+  }
+
+  //rename fields to x-amz-meta-field
+
+  function renameKeys(obj) {
+    const keyValues = Object.keys(obj).map((key) => {
+      const newKey = "x-amz-meta-" + key;
+      return { [newKey]: obj[key] };
+    });
+    return Object.assign({}, ...keyValues);
   }
 });

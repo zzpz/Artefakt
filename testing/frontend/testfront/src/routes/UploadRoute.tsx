@@ -1,4 +1,4 @@
-import UploadForm from "../components/Forms/UploadForm"
+import UploadForm from "../components/Forms/UploadFormik"
 
 
 const UploadRoute = () => {
