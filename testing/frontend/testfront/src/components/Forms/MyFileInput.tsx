@@ -25,6 +25,7 @@ const MyFileInput = (props: MyFileInputProps) => {
         reader.onload = () => {
             setfilepreviewSrc(`${reader.result}`);
             console.log(file.type)
+            console.log("tst")
         }
     }
 

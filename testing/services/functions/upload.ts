@@ -39,14 +39,15 @@ export const main = handler(async (
   if (authorised && valid) { //and valid (we shouldn't be doing this here)
     //renaming fields to be x-amz-meta-field
 
-    renameKeys(validatedInput.fields);
+    //extract all keys and the file type
+    let { fileType, ...reqFields } = validatedInput.fields;
+    reqFields = renameKeys(reqFields);
+    reqFields["Content-Type"] = fileType;
 
     const options: PresignedPostOptions = {
       Bucket: Bucket.Uploads.bucketName,
       Key: ulid(),
-      Fields: validatedInput.fields
-        ? renameKeys(validatedInput.fields)
-        : { "acl": "private" },
+      Fields: reqFields ? reqFields : { "acl": "private" },
       Conditions: undefined, // required if we send auth headers to s3 post url
       Expires: 600,
     };

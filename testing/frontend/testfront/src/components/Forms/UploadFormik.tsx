@@ -19,6 +19,7 @@ interface Values {
     file?: File
     filename?: string
     description?: string
+    fileType?: string
 }
 
 interface UploadFormProps {
@@ -127,7 +128,8 @@ const UploadForm = (props: UploadFormProps | any) => {
         title: "",
         file: undefined,
         filename: "fn",
-        description: ""
+        description: "",
+        fileType: ""
     }
 
     //formik setup
@@ -186,8 +188,11 @@ const UploadForm = (props: UploadFormProps | any) => {
                             formik.setFieldValue("file", file)
                             if (file) {
                                 formik.setFieldValue("filename", file.name)
+                                formik.setFieldValue("fileType", file.type)
                             } else {
                                 formik.setFieldValue("filename", "")
+                                formik.setFieldValue("fileType", "")
+
                             }
                         }
                     }}
