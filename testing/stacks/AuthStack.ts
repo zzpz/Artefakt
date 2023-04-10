@@ -1,4 +1,4 @@
-import { Cognito, StackContext, use } from "@serverless-stack/resources";
+import { Cognito, StackContext, use } from "sst/constructs";
 import { ApiStack } from "./ApiStack";
 
 export function AuthStack({ stack }: StackContext) {

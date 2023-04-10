@@ -1,8 +1,4 @@
-import {
-  Api as ApiGateway,
-  StackContext,
-  use,
-} from "@serverless-stack/resources";
+import { Api as ApiGateway, StackContext, use } from "sst/constructs";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { AuthStack } from "./AuthStack";
 import { ConfigStack } from "./Config";

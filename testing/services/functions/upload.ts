@@ -1,6 +1,6 @@
 import { PresignedPostOptions } from "@aws-sdk/s3-presigned-post";
 import { APIGatewayProxyHandlerV2WithJWTAuthorizer } from "aws-lambda";
-import { Bucket } from "@serverless-stack/node/bucket";
+import { Bucket } from "sst/node/bucket";
 import uploads from "util/uploads"; //presignedpost
 import { monotonicFactory } from "ulid";
 

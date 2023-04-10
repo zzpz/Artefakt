@@ -1,4 +1,4 @@
-import { StackContext, StaticSite, use } from "@serverless-stack/resources";
+import { StackContext, StaticSite, use } from "sst/constructs";
 import { AuthStack } from "./AuthStack";
 import { ApiStack } from "./ApiStack";
 import {
@@ -17,7 +17,7 @@ export function WebStack({ stack }: StackContext) {
   const { api } = use(ApiStack); // Not sure why this destructuring like this is necessary vs {api}
 
   const site = new StaticSite(stack, "frontend", {
-    disablePlaceholder: false,
+    disablePlaceholder: true,
     path: "frontend/testfront",
     buildOutput: "build",
     buildCommand: "npm run build",

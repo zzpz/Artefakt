@@ -1,6 +1,6 @@
 import { DynamoDB } from "aws-sdk";
-import { Table } from "@serverless-stack/node/table";
-import { Bucket } from "@serverless-stack/node/bucket";
+import { Table } from "sst/node/table";
+import { Bucket } from "sst/node/bucket";
 
 const dynamoDb = new DynamoDB.DocumentClient();
 

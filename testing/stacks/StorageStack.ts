@@ -1,4 +1,4 @@
-import { Bucket, StackContext, Table } from "@serverless-stack/resources";
+import { Bucket, StackContext, Table } from "sst/constructs";
 
 export function StorageStack({ stack }: StackContext) {
   // Create the DynamoDB table

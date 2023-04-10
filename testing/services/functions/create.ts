@@ -1,7 +1,7 @@
 import * as uuid from "uuid";
 import handler from "../util/handler";
 import dynamo from "../util/dynamo";
-import { Table } from "@serverless-stack/node/table";
+import { Table } from "sst/node/table";
 
 export const main = handler(async (event) => {
   const data = JSON.parse(event.body);

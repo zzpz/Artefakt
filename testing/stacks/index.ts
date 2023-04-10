@@ -1,4 +1,4 @@
-import { App } from "@serverless-stack/resources";
+import { App } from "sst/constructs";
 import { RemovalPolicy } from "aws-cdk-lib";
 
 import { ApiStack } from "./ApiStack";

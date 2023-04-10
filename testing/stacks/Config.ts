@@ -1,4 +1,4 @@
-import { Config, StackContext } from "@serverless-stack/resources";
+import { Config, StackContext } from "sst/constructs";
 import { App } from "aws-cdk-lib";
 import { Certificate, ICertificate } from "aws-cdk-lib/aws-certificatemanager";
 //create the Certificates here and then make their ARN's paramaters
