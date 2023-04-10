@@ -4,6 +4,8 @@ import { AuthStack } from "./AuthStack";
 import { ConfigStack } from "./Config";
 import { StorageStack } from "./StorageStack";
 
+const functionPathPrefix = "services/";
+
 export function ApiStack({ stack }: StackContext) {
   const { table } = use(StorageStack);
   const { bucket } = use(StorageStack);
@@ -53,17 +55,17 @@ export function ApiStack({ stack }: StackContext) {
       "POST /": {
         type: "function",
         function: {
-          handler: "functions/lambda.main",
+          handler: functionPathPrefix + "functions/lambda.main",
         },
       },
       "POST /up": {
-        function: "functions/create.main",
+        function: functionPathPrefix + "functions/create.main",
         authorizer: "none",
       },
-      "GET /notes/{id}": "functions/get.main",
-      "GET /notes": "functions/list.main",
+      "GET /notes/{id}": functionPathPrefix + "functions/get.main",
+      "GET /notes": functionPathPrefix + "functions/list.main",
       "POST /upload": {
-        function: "functions/upload.main",
+        function: functionPathPrefix + "functions/upload.main",
         authorizer: "jwt", // TODO: authorizer for getting a signedurl
       },
     },
