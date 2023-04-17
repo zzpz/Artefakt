@@ -1,14 +1,28 @@
-import { Bucket, StackContext, Table } from "sst/constructs";
+import { Bucket, StackContext, Table, use } from "sst/constructs";
+import { ConfigStack } from "./Config";
 
 export function StorageStack({ stack }: StackContext) {
   // Create the DynamoDB table
-  const dynamoName: string = "anynameatall"; //CloudFormation cannot update a stack when a custom-named resource requires replacing
+
+  //config import dependency?
+  const config = use(ConfigStack);
+
+  const dynamoName: string = config.DYNAMO_TABLE.value; //CloudFormation cannot update a stack when a custom-named resource requires replacing
   const table = new Table(stack, dynamoName, {
     fields: {
       pk: "string",
       sk: "string",
+      gsi1pk: "string",
+      gsi1sk: "string",
     },
     primaryIndex: { partitionKey: "pk", sortKey: "sk" },
+    globalIndexes: {
+      "gsi1pk-gsi1sk-index": {
+        partitionKey: "gsi1pk",
+        sortKey: "gsi1sk",
+        projection: "all", //TODO: pretty sure I can project specified attributes
+      },
+    },
   });
 
   //create S3 storage

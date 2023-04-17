@@ -36,6 +36,11 @@ export function ConfigStack({ stack }: StackContext) {
     value: process.env["APP_VERSION"] || "error",
   });
 
+  //define table name
+  const DYNAMO_TABLE = new Config.Parameter(stack, "DYNAMO_TABLE_NAME", {
+    value: process.env["DYNAMO_TABLE_NAME"] || "Items",
+  });
+
   stack.addOutputs({ //creates paramaters in SSM
     APPVER: APP_VERSION,
     API_CERT: API_CERT_ARN,
@@ -47,5 +52,6 @@ export function ConfigStack({ stack }: StackContext) {
     API_CERT_ARN,
     SITE_CERT_ARN,
     DOMAIN,
+    DYNAMO_TABLE, //not the right place for this config needs to be better handled
   };
 }

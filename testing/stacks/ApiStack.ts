@@ -62,7 +62,14 @@ export function ApiStack({ stack }: StackContext) {
         function: functionPathPrefix + "functions/create.main",
         authorizer: "none",
       },
-      "GET /notes/{id}": functionPathPrefix + "functions/get.main",
+      "POST /create": {
+        function: functionPathPrefix + "functions/create.main",
+        authorizer: "none",
+      },
+      "GET /notes/{id}": {
+        function: functionPathPrefix + "functions/get.main",
+        authorizer: "none",
+      },
       "GET /notes": functionPathPrefix + "functions/list.main",
       "POST /upload": {
         function: functionPathPrefix + "functions/upload.main",

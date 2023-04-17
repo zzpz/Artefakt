@@ -25,6 +25,7 @@
     "@aws-sdk/types": "^3.226.0",
     "@serverless-stack/node": "^1.18.4",
     "aws-sdk": "^2.1290.0",
+    "electrodb": "^2.5.1",
     "ulid": "^2.3.0",
     "zod": "^3.20.2"
   },
