@@ -1,10 +1,12 @@
 import handler from "../util/handler";
-import { Book, Task } from "../core/electItem";
+import electroORM from "../core/electro/eService";
+import { Book, Task } from "../core/electro/electItem";
 
 export const main = handler(async (event) => {
   const data = JSON.parse(event.body);
+  const params = event.pathParameters;
+
   // const params = {
-  //   TableName: Table.Items.tableName,
   //   Item: {
   //     // The attributes of the item to be created
   //     userId: "123", // The id of the author
@@ -16,22 +18,30 @@ export const main = handler(async (event) => {
   // };
 
   // await dynamo.put(params);
-
-  const b = await Book.create({
+  //TODO: pull this whole thing up into a Repository pattern eventually
+  const BookParams = {
     bookId: Math.random().toString(),
     storeId: "pdx-45",
     author: "Stephen King",
     title: "IT",
-    condition: "GOOD",
+    condition: "GOOD" as const,
     price: 15,
     genre: ["HORROR", "THRILLER"],
     published: Date.parse("1986-09-15"),
-  }).go();
+  };
+
+  const returnConfig = {
+    data: "includeKeys" as const, //includeKeys defined in type
+  };
+
+  const b = await electroORM.entities.item
+    .put(BookParams)
+    // .where((attr, op) => op.eq(attr.rent, "4500.00")) optional conditional expression
+    .go(returnConfig);
 
   return b;
 });
 
 const uuid = (): any => {
-  return Math.random().toString();
-  // throw new Error("Function not implemented.");
+  throw new Error("Function not implemented.");
 };

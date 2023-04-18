@@ -1,19 +1,17 @@
 import { Entity } from "electrodb";
-import { Table } from "sst/node/table";
 
-//v3 SDK
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-const region = "ap-southeast-2";
-const client = new DynamoDBClient({ region });
+const table = undefined; //this is overridden by the service
+const client = undefined; //this is overridden by the service
 
-//table is from storageStack->APIStack->bind()  -- currently ALL functions have access to the table
-const table = Table.Items.tableName; //TODO: there must be a way to programatically bind "Items"
+//serviceName needs to come from config?
+
+const serviceName = "electroORM";
 
 const Task = new Entity({
   model: {
     entity: "task",
     version: "1",
-    service: "taskapp",
+    service: serviceName,
   },
   attributes: {
     task: {
@@ -71,7 +69,7 @@ const Book = new Entity({
   model: {
     entity: "book",
     version: "1",
-    service: "store",
+    service: serviceName,
   },
   attributes: {
     storeId: {
