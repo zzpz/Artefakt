@@ -3,8 +3,12 @@ import electroORM from "../core/electro/eService";
 import { Book, Task } from "../core/electro/electItem";
 
 export const main = handler(async (event) => {
-  const data = JSON.parse(event.body);
+  const data = JSON.parse(event.body ?? "{}");
   const params = event.pathParameters;
+
+
+  console.log(params)
+
 
   // const params = {
   //   Item: {
@@ -16,12 +20,13 @@ export const main = handler(async (event) => {
   //     createdAt: Date.now(), // Current Unix timestamp
   //   },
   // };
-
   // await dynamo.put(params);
+
   //TODO: pull this whole thing up into a Repository pattern eventually
-  const BookParams = {
-    bookId: Math.random().toString(),
-    storeId: "pdx-45",
+  const testingItemParams = {
+    // itemID: "0.5380767639070243", //undefined will give a default for testing
+    version: 0,
+    description: "Describe current version", 
     author: "Stephen King",
     title: "IT",
     condition: "GOOD" as const,
@@ -35,7 +40,7 @@ export const main = handler(async (event) => {
   };
 
   const b = await electroORM.entities.item
-    .put(BookParams)
+    .put(testingItemParams) // sending undefined params creates the item regardless because of default pk,sk values
     // .where((attr, op) => op.eq(attr.rent, "4500.00")) optional conditional expression
     .go(returnConfig);
 

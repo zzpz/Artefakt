@@ -1,5 +1,5 @@
 import handler from "../util/handler";
-import electroORM from "core/electro/eService";
+import eORM from "core/electro/eService";
 
 export const main = handler(async (event, context) => {
   console.log(event.pathParameters.id);
@@ -9,17 +9,21 @@ export const main = handler(async (event, context) => {
   id = id.trim(); //FIXME: for now it makes copy pasting easier
 
   //get item
-  const book = await electroORM.entities.item.get({
-    bookId: id, //pk
-    storeId: "pdx-45", //sk
+  const item = await eORM.entities.item.get({
+    itemID: id, //pk
+    version: 0, //sk
   }).go();
 
+  
+
+  const {data,cursor} = await eORM.collections.comments({itemID:id}).go()
+
   // query
-  // const { data, cursor } = await Book.query
+  // const { data, cursor } = await .query
   //   .byAuthor({ author: "Stephen King" })
   //   .go();
 
-  return book;
+  return data;
 });
 
 const uuid = (): any => {

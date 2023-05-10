@@ -1,4 +1,6 @@
 import { Entity } from "electrodb";
+import { monotonicFactory } from 'ulid'
+const ulid = monotonicFactory() //generates UUID's with a total order (ideally - distributed system COULD collide or mis-order them due to system clock drift but obscenely unlikely given our usecase and we don't NEED total ordering it's just nice if it is)
 
 const table = undefined; //this is overridden by the service
 const client = undefined; //this is overridden by the service
@@ -140,14 +142,15 @@ const Item = new Entity({
   attributes: {
     itemID: { // uuid
       type: "string",
-      default: "ULID()??",
+      default: ()=>"testing_"+uuid(),
     },
-    description: { //current description
+    description: { // current description of the contents of the item
       type: "string",
       default: "",
     },
-    currentVersion: { // 0 is reserved as the "current" data, all other versions are version control
+    version: { // 0 is reserved as the "current" data, all other versions are version control incrementing for a history
       type: "number",
+      label: "v", 
       default: 0, //default as 0 => first insert gives 0?
     },
     public: {
@@ -186,46 +189,30 @@ const Item = new Entity({
     // forget it for now, premature optimisation. It can be done but it adds overhead to the query vs just select all, filter
   },
   indexes: {
-    items: { //access pattern is get(itemID,currentVersion=0) => data:{descrip,etc}, transactWrite(update(itemId,currentVersion),put(itemID,currentVersion+1))
+    byVersion: { //access pattern is get(itemID,currentVersion=0) => data:{descrip,etc}, transactWrite(update(itemId,currentVersion),put(itemID,currentVersion+1))
       pk: {
         field: "pk",
-        //this is all we need? or should we include version in PK or SK or both?
-        composite: ["itemID", "version"],
+        composite: ["itemID"], 
       },
       sk: {
-        field: "sk", // no sort key for items?
-        composite: ["version"],
-        //template: $"v_{version}" ?
-        // composite: ["version"], /
-        //output is: $items#
-      },
+        field: "sk", // the field name in the database if not defined on the model as an attribute named "sk"
+        composite:["version"]
+      }
+      //template: $"v_{version}" ?
     },
     item: { // access pattern is getComments(itemID)=> filter(data) => {data}
       collection: "comments",
-      index: "gsi1",
+      index: "gsi1pk-gsi1sk-index",
       pk: {
         field: "gsi1pk",
         composite: ["itemID"],
       },
+      sk:{
+        field: "gsi1sk",
+        composite: []
+      }
     },
   },
-  // {
-  //   type: "string" | "number" | "boolean" | "list" | "map" | "set" | "any" | ReadonlyArray<string>;
-  //   required?: boolean;
-  //   default?: <type> | (() => <type>);
-  //   validate?: RegExp | ((value: <type>) => void | string);
-  //   field?: string;
-  //   readOnly?: boolean;
-  //   label?: string;
-  //       cast?: "number"|"string"|"boolean";
-  //   get?: (attribute: <type>, schema: any) => <type> | void | undefined;
-  //   set?: (attribute?: <type>, schema?: any) => <type> | void | undefined;
-  //   watch?: "*" | string[];
-  //   padding?: {
-  //       length: number;
-  //       char: string;
-  //   }
-  // }
 });
 
 const Comment = new Entity({
@@ -237,16 +224,17 @@ const Comment = new Entity({
   attributes: {
     itemID: { // uuid
       type: "string",
-      default: "ULID()??",
+      default: "MUST_SUPPLY",
     },
     commentID: {
       type: "string",
-      default: "ULID?", //ULID allows range queries on PK?
+      default: ()=> uuid(), //ULID allows for range queries on PK?
     },
     userID: {
       type: "string",
+      label: "uid",
       required: false, // TODO
-      default: "", //who made the comment
+      default: "user_"+Math.floor(Math.imul(Math.random(),10)).toString(), //who made the comment
     },
     description: { // comment contents
       label: "comment",
@@ -276,16 +264,16 @@ const Comment = new Entity({
     comment: { //access pattern is ?
       pk: {
         field: "pk",
-        composite: ["commentID","itemID"], //$service#commentID_{value}#itemID_{value} 
+        composite: ["itemID","commentID"], //$service_comment_#itemID_{value}....not unique without commentID 
       },
       sk: {
-        field: "sk",
-        composite: [""],
+        field: "sk", //? no sk for comments? -> TODO: find something for the sort key on comments
+        composite: [],
       },
     },
     itemComments: { // access pattern is getComments(itemID)=> filter(data) => {data}
       collection: "comments",
-      index: "gsi1",
+      index: "gsi1pk-gsi1sk-index",
       pk: {
         field: "gsi1pk",
         composite: ["itemID"], //within this gsi, this field is our shared PK (composited with this collection? comments_itemID_etc?)
@@ -298,36 +286,11 @@ const Comment = new Entity({
   },
 });
 
+
 const uuid = (): any => {
-  return Math.random().toString();
+
+  return ulid() //no seed time
   // throw new Error("Function not implemented.");
 };
 
-export { Book, Task };
-
-// readonly model: {
-//   readonly entity: string;
-//   readonly service: string;
-//   readonly version: string;
-// }
-// readonly attributes: {
-//   readonly [a in A]: Attribute
-// };
-// readonly indexes: {
-//   [accessPattern: string]: {
-//       readonly index?: string;
-//       readonly type?: 'clustered' | 'isolated';
-//       readonly collection?: AccessPatternCollection<C>;
-//       readonly pk: {
-//           readonly casing?: "upper" | "lower" | "none" | "default";
-//           readonly field: string;
-//           readonly composite: ReadonlyArray<F>;
-//           readonly template?: string;
-//       }
-//       readonly sk?: {
-//           readonly casing?: "upper" | "lower" | "none" | "default";
-//           readonly field: string;
-//           readonly composite: ReadonlyArray<F>;
-//           readonly template?: string;
-//       }
-//   }
+export { Book, Task, Comment, Item };
