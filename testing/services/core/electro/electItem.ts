@@ -189,30 +189,41 @@ const Item = new Entity({
     // forget it for now, premature optimisation. It can be done but it adds overhead to the query vs just select all, filter
   },
   indexes: {
-    byVersion: { //access pattern is get(itemID,currentVersion=0) => data:{descrip,etc}, transactWrite(update(itemId,currentVersion),put(itemID,currentVersion+1))
+    base: { //access pattern is get(itemID,currentVersion=0) => data:{descrip,etc}, transactWrite(update(itemId,currentVersion),put(itemID,currentVersion+1))
       pk: {
         field: "pk",
         composite: ["itemID"], 
       },
       sk: {
         field: "sk", // the field name in the database if not defined on the model as an attribute named "sk"
-        composite:["version"]
+        composite:["version"] // we need a reverse of this index as gsi
       }
       //template: $"v_{version}" ?
     },
-    item: { // access pattern is getComments(itemID)=> filter(data) => {data}
+    item: { // access pattern is getComments(itemID)=> filter(data) => {data} 
       collection: "comments",
-      index: "gsi1pk-gsi1sk-index",
+      index: "gsi1pk-gsi1sk-index", 
       pk: {
         field: "gsi1pk",
         composite: ["itemID"],
       },
       sk:{
         field: "gsi1sk",
-        composite: []
+        composite: [] //no composite here
+      }
+    }, 
+    byVersion: {
+      index: "gsi2pk-gsi2sk-index",
+      pk: {
+        field: "gsi2pk",
+        composite: ["version"],
+      },
+      sk:{
+        field: "gsi2sk",
+        composite: ["itemID"]
       }
     },
-  },
+  }
 });
 
 const Comment = new Entity({
@@ -264,11 +275,11 @@ const Comment = new Entity({
     comment: { //access pattern is ?
       pk: {
         field: "pk",
-        composite: ["itemID","commentID"], //$service_comment_#itemID_{value}....not unique without commentID 
+        composite: ["itemID"], //$service_comment_#itemID_{value}....not unique without commentID 
       },
       sk: {
         field: "sk", //? no sk for comments? -> TODO: find something for the sort key on comments
-        composite: [],
+        composite: ["commentID"],
       },
     },
     itemComments: { // access pattern is getComments(itemID)=> filter(data) => {data}
