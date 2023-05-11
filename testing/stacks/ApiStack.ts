@@ -66,15 +66,23 @@ export function ApiStack({ stack }: StackContext) {
         function: functionPathPrefix + "functions/create.main",
         authorizer: "none",
       },
-      "GET /notes/{id}": {
+      "GET /item/{id}": {
         function: functionPathPrefix + "functions/get.main",
         authorizer: "none",
       },
-      "GET /notes": functionPathPrefix + "functions/list.main",
+      "GET /item": functionPathPrefix + "functions/list.main",
       "POST /upload": {
         function: functionPathPrefix + "functions/upload.main",
         authorizer: "jwt", // TODO: authorizer for getting a signedurl
       },
+      "POST /comment": {
+        function: functionPathPrefix+ "functions/comments/put.main",
+        authorizer: "none",
+      },
+      "GET /comment": {
+        function: functionPathPrefix+ "functions/comments/get.main",
+        authorizer: "none",
+      }
     },
   });
 

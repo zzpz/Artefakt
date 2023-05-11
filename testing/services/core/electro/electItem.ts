@@ -272,7 +272,7 @@ const Comment = new Entity({
     },
   },
   indexes: {
-    comment: { //access pattern is ?
+    comment: { //access pattern is ?? how often do we _really_ care about getting a single comment by its ID?
       pk: {
         field: "pk",
         composite: ["itemID"], //$service_comment_#itemID_{value}....not unique without commentID 
@@ -291,7 +291,18 @@ const Comment = new Entity({
       },
       sk: {
         field: "gsi1sk",
-        composite: []  // this is our
+        composite: []  
+      }
+    },
+    byCommentID: {
+      index: "gsi2pk-gsi2sk-index",
+      pk: {
+        field: "gsi2pk",
+        composite: ["commentID"],
+      },
+      sk:{
+        field: "gsi2sk",
+        composite: ["itemID"]
       }
     },
   },
